@@ -56,18 +56,18 @@ public class App {
     /** Imprime o menu principal, lê a opção do usuário e a retorna (int).
      * @return Um inteiro com a opção do usuário.
      */
-    static int menu() {
-        cabecalho();
-        System.out.println("1 - Listar todos os produtos");
-        System.out.println("2 - Procurar por um produto, por código");
-        System.out.println("3 - Procurar por um produto, por nome");
-        System.out.println("4 - Iniciar novo pedido");
-        System.out.println("5 - Fechar pedido");
-        System.out.println("6 - Listar produtos dos pedidos mais recentes");
-        System.out.println("0 - Sair");
-        System.out.print("Digite sua opção: ");
-        return Integer.parseInt(teclado.nextLine());
-    }
+    // static int menu() {
+    //     cabecalho();
+    //     System.out.println("1 - Listar todos os produtos");
+    //     System.out.println("2 - Procurar por um produto, por código");
+    //     System.out.println("3 - Procurar por um produto, por nome");
+    //     System.out.println("4 - Iniciar novo pedido");
+    //     System.out.println("5 - Fechar pedido");
+    //     System.out.println("6 - Listar produtos dos pedidos mais recentes");
+    //     System.out.println("0 - Sair");
+    //     System.out.print("Digite sua opção: ");
+    //     return Integer.parseInt(teclado.nextLine());
+    // }
     
     /**
      * Lê os dados de um arquivo-texto e retorna um vetor de produtos. Arquivo-texto no formato
@@ -221,26 +221,35 @@ public class App {
 	public static void main(String[] args) {
 		
 		teclado = new Scanner(System.in, Charset.forName("UTF-8"));
+
+        int matricula[] = {1, 5, 8, 9};
+        Pilha<Integer> pilha = new Pilha<>();
+
+        for(int i = 0; i < matricula.length; i++) {
+            pilha.empilhar(matricula[i]);
+        }
+
+        pilha.imprime_certo();
         
-		nomeArquivoDados = "produtos.txt";
-        produtosCadastrados = lerProdutos(nomeArquivoDados);
+		// nomeArquivoDados = "produtos.txt";
+        // produtosCadastrados = lerProdutos(nomeArquivoDados);
         
-        Pedido pedido = null;
+        // Pedido pedido = null;
         
-        int opcao = -1;
+        // int opcao = -1;
       
-        do{
-            opcao = menu();
-            switch (opcao) {
-                case 1 -> listarTodosOsProdutos();
-                case 2 -> mostrarProduto(localizarProduto());
-                case 3 -> mostrarProduto(localizarProdutoDescricao());
-                case 4 -> pedido = iniciarPedido();
-                case 5 -> finalizarPedido(pedido);
-                case 6 -> listarProdutosPedidosRecentes();
-            }
-            pausa();
-        }while(opcao != 0);       
+        // do{
+        //     // opcao = menu();
+        //     switch (opcao) {
+        //         case 1 -> listarTodosOsProdutos();
+        //         case 2 -> mostrarProduto(localizarProduto());
+        //         case 3 -> mostrarProduto(localizarProdutoDescricao());
+        //         case 4 -> pedido = iniciarPedido();
+        //         case 5 -> finalizarPedido(pedido);
+        //         case 6 -> listarProdutosPedidosRecentes();
+        //     }
+        //     pausa();
+        // }while(opcao != 0);       
 
         teclado.close();    
     }
