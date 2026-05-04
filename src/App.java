@@ -3,6 +3,8 @@ import java.time.LocalDate;
 import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
 
 public class App {
@@ -21,6 +23,9 @@ public class App {
 
     /** Pilha de pedidos */
     static Pilha<Pedido> pilhaPedidos = new Pilha<>();
+    
+    /** Pilha de produtos mais recentemente pedidos */
+    static Pilha<Produto> pilhaProdutosRecentes = new Pilha<>();
         
     static void limparTela() {
         System.out.print("\033[H\033[2J");
@@ -56,18 +61,18 @@ public class App {
     /** Imprime o menu principal, lê a opção do usuário e a retorna (int).
      * @return Um inteiro com a opção do usuário.
      */
-    // static int menu() {
-    //     cabecalho();
-    //     System.out.println("1 - Listar todos os produtos");
-    //     System.out.println("2 - Procurar por um produto, por código");
-    //     System.out.println("3 - Procurar por um produto, por nome");
-    //     System.out.println("4 - Iniciar novo pedido");
-    //     System.out.println("5 - Fechar pedido");
-    //     System.out.println("6 - Listar produtos dos pedidos mais recentes");
-    //     System.out.println("0 - Sair");
-    //     System.out.print("Digite sua opção: ");
-    //     return Integer.parseInt(teclado.nextLine());
-    // }
+    static int menu() {
+        cabecalho();
+        System.out.println("1 - Listar todos os produtos");
+        System.out.println("2 - Procurar por um produto, por código");
+        System.out.println("3 - Procurar por um produto, por nome");
+        System.out.println("4 - Iniciar novo pedido");
+        System.out.println("5 - Fechar pedido");
+        System.out.println("6 - Listar produtos dos pedidos mais recentes");
+        System.out.println("0 - Sair");
+        System.out.print("Digite sua opção: ");
+        return Integer.parseInt(teclado.nextLine());
+    }
     
     /**
      * Lê os dados de um arquivo-texto e retorna um vetor de produtos. Arquivo-texto no formato
@@ -209,48 +214,72 @@ public class App {
      * @param pedido O pedido que deve ser finalizado.
      */
     public static void finalizarPedido(Pedido pedido) {
-    	
-    	// TODO
+    	pilhaPedidos.empilhar(pedido);
+    	ItemDePedido[] itens = pedido.getItensDoPedido();
+    	for (ItemDePedido item : itens) {
+    		if (item != null) {
+    			for (int i = 0; i < item.getQuantidade(); i++) {
+    				pilhaProdutosRecentes.empilhar(item.getProduto());
+    			}
+    		}
+    	}
     }
     
     public static void listarProdutosPedidosRecentes() {
-    	
-    	// TODO
+    	cabecalho();
+    	System.out.println("Produtos dos pedidos mais recentes:");
+    	try {
+    		Pilha<Produto> recentes = pilhaProdutosRecentes.subPilha(5);
+    		while (!recentes.vazia()) {
+    			System.out.println(recentes.desempilhar());
+    		}
+    	} catch (IllegalArgumentException e) {
+    		System.out.println("Não há produtos suficientes para listar.");
+    	}
+    }
+    
+    static void salvarPedidos() {
+    	try (PrintWriter writer = new PrintWriter(new FileWriter("pedidos.txt"))) {
+    		Pilha<Pedido> temp = new Pilha<>();
+    		while (!pilhaPedidos.vazia()) {
+    			Pedido p = pilhaPedidos.desempilhar();
+    			writer.println(p.toString());
+    			writer.println("==============================\n");
+    			temp.empilhar(p);
+    		}
+    		while (!temp.vazia()) {
+    			pilhaPedidos.empilhar(temp.desempilhar());
+    		}
+    	} catch (IOException e) {
+    		System.out.println("Erro ao salvar pedidos: " + e.getMessage());
+    	}
     }
     
 	public static void main(String[] args) {
 		
 		teclado = new Scanner(System.in, Charset.forName("UTF-8"));
 
-        int matricula[] = {1, 5, 8, 9};
-        Pilha<Integer> pilha = new Pilha<>();
-
-        for(int i = 0; i < matricula.length; i++) {
-            pilha.empilhar(matricula[i]);
-        }
-
-        pilha.imprime_certo();
+        nomeArquivoDados = "produtos.txt";
+        produtosCadastrados = lerProdutos(nomeArquivoDados);
         
-		// nomeArquivoDados = "produtos.txt";
-        // produtosCadastrados = lerProdutos(nomeArquivoDados);
+        Pedido pedido = null;
         
-        // Pedido pedido = null;
-        
-        // int opcao = -1;
+        int opcao = -1;
       
-        // do{
-        //     // opcao = menu();
-        //     switch (opcao) {
-        //         case 1 -> listarTodosOsProdutos();
-        //         case 2 -> mostrarProduto(localizarProduto());
-        //         case 3 -> mostrarProduto(localizarProdutoDescricao());
-        //         case 4 -> pedido = iniciarPedido();
-        //         case 5 -> finalizarPedido(pedido);
-        //         case 6 -> listarProdutosPedidosRecentes();
-        //     }
-        //     pausa();
-        // }while(opcao != 0);       
-
+        do{
+            opcao = menu();
+            switch (opcao) {
+                case 1 -> listarTodosOsProdutos();
+                case 2 -> mostrarProduto(localizarProduto());
+                case 3 -> mostrarProduto(localizarProdutoDescricao());
+                case 4 -> pedido = iniciarPedido();
+                case 5 -> finalizarPedido(pedido);
+                case 6 -> listarProdutosPedidosRecentes();
+            }
+            pausa();
+        }while(opcao != 0);
+        
+        salvarPedidos();
         teclado.close();    
     }
 }
