@@ -22,7 +22,7 @@ public class App {
     static int quantosProdutos = 0;
 
     /** Pilha de pedidos */
-    static Pilha<Pedido> pilhaPedidos = new Pilha<>();
+    static Fila<Pedido> filaPedidos = new Fila<>();
     
     /** Pilha de produtos mais recentemente pedidos */
     static Pilha<Produto> pilhaProdutosRecentes = new Pilha<>();
@@ -69,6 +69,7 @@ public class App {
         System.out.println("4 - Iniciar novo pedido");
         System.out.println("5 - Fechar pedido");
         System.out.println("6 - Listar produtos dos pedidos mais recentes");
+        System.out.println("7 - Processar Pedido");
         System.out.println("0 - Sair");
         System.out.print("Digite sua opção: ");
         return Integer.parseInt(teclado.nextLine());
@@ -106,10 +107,24 @@ public class App {
     	} catch (IOException excecaoArquivo) {
     		produtosCadastrados = null;
     	} finally {
-    		arquivo.close();
+    		if (arquivo != null) {
+    			arquivo.close();
+    		}
     	}
     	
     	return produtosCadastrados;
+    }
+
+    public static void processarPedido(){
+        if(filaPedidos.vazia()) {
+            System.out.println("Nenhum pedido a ser processado! ");
+            return;
+        }
+
+        Pedido pedido = filaPedidos.desenfileirar();
+        System.out.println("Processando pedido: ");
+        System.out.println(pedido);
+
     }
     
     /** Localiza um produto no vetor de produtos cadastrados, a partir do código de produto informado pelo usuário, e o retorna. 
@@ -214,7 +229,7 @@ public class App {
      * @param pedido O pedido que deve ser finalizado.
      */
     public static void finalizarPedido(Pedido pedido) {
-    	pilhaPedidos.empilhar(pedido);
+    	filaPedidos.enfileirar(pedido);
     	ItemDePedido[] itens = pedido.getItensDoPedido();
     	for (ItemDePedido item : itens) {
     		if (item != null) {
@@ -240,15 +255,15 @@ public class App {
     
     static void salvarPedidos() {
     	try (PrintWriter writer = new PrintWriter(new FileWriter("pedidos.txt"))) {
-    		Pilha<Pedido> temp = new Pilha<>();
-    		while (!pilhaPedidos.vazia()) {
-    			Pedido p = pilhaPedidos.desempilhar();
+    		Fila<Pedido> temp = new Fila<>();
+    		while (!filaPedidos.vazia()) {
+    			Pedido p = filaPedidos.desenfileirar();
     			writer.println(p.toString());
     			writer.println("==============================\n");
-    			temp.empilhar(p);
+    			temp.enfileirar(p);
     		}
     		while (!temp.vazia()) {
-    			pilhaPedidos.empilhar(temp.desempilhar());
+    			filaPedidos.enfileirar(temp.desenfileirar());
     		}
     	} catch (IOException e) {
     		System.out.println("Erro ao salvar pedidos: " + e.getMessage());
@@ -275,7 +290,7 @@ public class App {
             fila.enfileirar(letras[i]);   
         }
 
-        fila.testeGenerico(fila, 'A');
+        fila.testeGenerico('R');
       
         do{
             opcao = menu();
@@ -286,6 +301,7 @@ public class App {
                 case 4 -> pedido = iniciarPedido();
                 case 5 -> finalizarPedido(pedido);
                 case 6 -> listarProdutosPedidosRecentes();
+                case 7 -> processarPedido();
             }
             pausa();
         }while(opcao != 0);
