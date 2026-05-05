@@ -254,6 +254,7 @@ public class App {
     		System.out.println("Erro ao salvar pedidos: " + e.getMessage());
     	}
     }
+
     
 	public static void main(String[] args) {
 		
@@ -265,6 +266,16 @@ public class App {
         Pedido pedido = null;
         
         int opcao = -1;
+
+        char[] letras = {'A', 'R', 'T', 'H', 'U', 'R', 'M', 'A', 'R', 'T', 'I', 'N', 'S'}; 
+
+        Fila<Character> fila = new Fila<>();
+
+        for(int i = 0; i < letras.length; i++) {
+            fila.enfileirar(letras[i]);   
+        }
+
+        fila.testeGenerico(fila, 'A');
       
         do{
             opcao = menu();
