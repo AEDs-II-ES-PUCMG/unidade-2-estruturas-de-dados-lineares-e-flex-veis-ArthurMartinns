@@ -27,6 +27,10 @@ public class ItemDePedido {
 	public Produto getProduto() {
 		return produto;
 	}
+
+	public String getDescricao() {
+		return produto.descricao;
+	}
 	
 	@Override
 	public String toString() {
